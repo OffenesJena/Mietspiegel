@@ -26,13 +26,28 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
         public static String Scrape(this String HTML, String PatternStart, String PatternEnd, ref Int32 pos)
         {
 
-            var PosStart  = HTML.IndexOf(PatternStart, pos);
-            var PosEnd    = HTML.IndexOf(PatternEnd, PosStart);
+            Int32 PosStart, PosEnd = 0;
 
-            pos = PosStart + PatternEnd.Length;
+            try
+            {
 
-            return HTML.Substring(PosStart + PatternStart.Length,
-                                  PosEnd - PosStart - PatternStart.Length);
+                PosStart = HTML.IndexOf(PatternStart, pos);
+                PosEnd   = HTML.IndexOf(PatternEnd,   PosStart);
+
+                pos      = PosStart + PatternEnd.Length;
+
+                return HTML.Substring(PosStart + PatternStart.Length,
+                                      PosEnd - PosStart - PatternStart.Length);
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+
+            pos = 0;
+            return String.Empty;
 
         }
 
@@ -60,6 +75,13 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
         public String   Wohnlage         { get; set; }
         public String   Wohnwertpunkte   { get; set; }
         public String[] Vergleichsmiete  { get; set; }
+
+        public MietspiegelInfo()
+        {
+            Wohnlage         = "Leider sind für Ihre Angaben keine Daten verfügbar.";
+            Wohnwertpunkte   = "Leider sind für Ihre Angaben keine Daten verfügbar.";
+            Vergleichsmiete  = new String[] { "0", "0" };
+        }
 
     }
 
@@ -277,32 +299,39 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
                     // Chunked transfer encoding!
                     var HTML = GetMietinfos.HTTPBody.ToUTF8String();
 
-                    Int32 SearchPosition = 0;
+                    if (!HTML.Contains("Leider sind für Ihre Angaben keine Daten verfügbar."))
+                    {
 
-                    return new MietspiegelInfo() {
+                        Int32 SearchPosition = 0;
 
-                        Wohnlage         = HTML.Scrape("<tr><td><b>Wohnlage</b></td><td>",
-                                                       "</td></tr>",  ref SearchPosition),
+                        return new MietspiegelInfo() {
 
-                        Wohnwertpunkte   = HTML.Scrape("<tr><td><b>Wohnwertpunkte</b></td><td>",
-                                                       "</td></tr>",  ref SearchPosition),
+                            Wohnlage         = HTML.Scrape("<tr><td><b>Wohnlage</b></td><td>",
+                                                           "</td></tr>", ref SearchPosition),
 
-                        Vergleichsmiete  = HTML.Scrape(@"<tr><td><b>ortsübliche Vergleichsmiete</b></td><td style=""white-space: nowrap;"">&nbsp;",
-                                                       "  €/m²</tr>", ref SearchPosition).
-                                                Replace("€/m² -", " ").
-                                                Split(SplitMe, StringSplitOptions.RemoveEmptyEntries)
+                            Wohnwertpunkte   = HTML.Scrape("<tr><td><b>Wohnwertpunkte</b></td><td>",
+                                                           "</td></tr>", ref SearchPosition),
 
-                    };
+                            Vergleichsmiete  = HTML.Scrape(@"<tr><td><b>ortsübliche Vergleichsmiete</b></td><td style=""white-space: nowrap;"">&nbsp;",
+                                                           "  €/m²</tr>", ref SearchPosition).
+                                                    Replace("€/m² -", " ").
+                                                    Split(SplitMe, StringSplitOptions.RemoveEmptyEntries)
+
+                        };
+
+                    }
 
                 }
 
             }
 
+            // No data...
             return new MietspiegelInfo();
 
         }
 
         #endregion
+
 
         public static void Main(String[] Arguments)
         {
@@ -337,7 +366,7 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
 
                 //JSONFile.WriteLine("{");
 
-                foreach (var Street in File.ReadAllLines("Mietspiegel_StrassenamenUndHausnummern.log").Skip(14))
+                foreach (var Street in File.ReadAllLines("Mietspiegel_StrassenamenUndHausnummern.log").Skip(292).Take(20))
                 {
 
                     var Streetinfo = Street.Split(Splitter, StringSplitOptions.RemoveEmptyEntries).
@@ -383,6 +412,7 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
                     });
 
                     JSONFile.WriteLine(new JProperty(Streetinfo[0], JSONStreet).ToString() + ",");
+                    JSONFile.Flush();
 
                     Console.WriteLine();
 
@@ -390,7 +420,6 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
 
                 // An illegal "," in the last line!
                 //JSONFile.WriteLine("}");
-                JSONFile.Flush();
 
             }
 
