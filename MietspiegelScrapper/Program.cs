@@ -13,6 +13,7 @@ using org.GraphDefined.Vanaheimr.Hermod.HTTP;
 
 using org.GraphDefined.Vanaheimr.Illias;
 using System.IO;
+using Newtonsoft.Json.Linq;
 
 #endregion
 
@@ -51,6 +52,15 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
         between1963and1990  = 3,
         between1991and2001  = 4,
         since2002           = 5
+    }
+
+    public class MietspiegelInfo
+    {
+
+        public String   Wohnlage         { get; set; }
+        public String   Wohnwertpunkte   { get; set; }
+        public String[] Vergleichsmiete  { get; set; }
+
     }
 
 
@@ -199,7 +209,7 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
         /// <summary>
         /// Get all housenumbers for a given streetname from https://mietspiegel.jena.de
         /// </summary>
-        private static async Task<Tuple<String, IEnumerable<String>>>
+        private static async Task<MietspiegelInfo>
 
             GetResults(String    Streetname,
                        String    Housenumber,
@@ -211,71 +221,84 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
             #region Initial checks
 
             if (Streetname.IsNullOrEmpty())
-                throw new ArgumentNullException(nameof(Streetname), "The given streetname must not be null or empty!");
+                throw new ArgumentNullException(nameof(Streetname),   "The given streetname must not be null or empty!");
+
+            if (Housenumber.IsNullOrEmpty())
+                throw new ArgumentNullException(nameof(Housenumber),  "The given housenumber must not be null or empty!");
 
             #endregion
 
-            var response = await new HTTPClient(HTTPAddress,
-                                                HTTPPort,
-                                                (sender, certificate, chain, sslPolicyErrors) => true,
-                                                DNSClient).
+            var GetCookie = await new HTTPClient(HTTPAddress,
+                                                 HTTPPort,
+                                                 (sender, certificate, chain, sslPolicyErrors) => true,
+                                                 DNSClient).
 
-                                     Execute(client => client.POST("/",
-                                                                   requestbuilder => {
-                                                                       requestbuilder.Host         = "mietspiegel.jena.de";
-                                                                       requestbuilder.ContentType  = HTTPContentType.XWWWFormUrlEncoded;
-                                                                       requestbuilder.Content      = ("submit=1&strasse=" + Streetname +
-                                                                                                      "&nummer=" + Housenumber +
-                                                                                                      "&form_3=" + (Int32) Size +
-                                                                                                      "&form_4=" + (Int32) Year +
-                                                                                                      "&form_5=0&form_6=0&form_7=0&form_8=0&form_9=0&form_13=0&form_14=0&form_23=0").ToUTF8Bytes();
-                                                                   }),
+                                      Execute(client => client.POST("/",
+                                                                    requestbuilder => {
+                                                                        requestbuilder.Host         = "mietspiegel.jena.de";
+                                                                        requestbuilder.ContentType  = HTTPContentType.XWWWFormUrlEncoded;
+                                                                        requestbuilder.Content      = ("submit=1&strasse=" + Streetname +
+                                                                                                       "&nummer=" + Housenumber +
+                                                                                                       "&form_3=" + (Int32) Size +
+                                                                                                       "&form_4=" + (Int32) Year +
+                                                                                                       "&form_5=0&form_6=0&form_7=0&form_8=0&form_9=0&form_13=0&form_14=0&form_23=0").ToUTF8Bytes();
+                                                                    }),
 
-                                             TimeSpan.FromSeconds(30),
-                                             new CancellationTokenSource().Token);
+                                              TimeSpan.FromSeconds(30),
+                                              new CancellationTokenSource().Token);
 
 
             String Cookie;
 
             // Set-Cookie: PHPSESSID=b4f1c5ea36b12e92f81f152ecbab6c00; path=/
-            if (response.TryGet("Set-Cookie", out Cookie))
+            if (GetCookie != null &&
+                GetCookie.HTTPStatusCode == HTTPStatusCode.Found &&
+                GetCookie.TryGet("Set-Cookie", out Cookie))
             {
 
-                var response2 = await new HTTPClient(HTTPAddress,
-                                                     HTTPPort,
-                                                     (sender, certificate, chain, sslPolicyErrors) => true,
-                                                     DNSClient).
+                var GetMietinfos = await new HTTPClient(HTTPAddress,
+                                                        HTTPPort,
+                                                        (sender, certificate, chain, sslPolicyErrors) => true,
+                                                        DNSClient).
 
-                                          Execute(client => client.GET("/result.php",
-                                                                        requestbuilder => {
-                                                                            requestbuilder.Host = "mietspiegel.jena.de";
-                                                                            requestbuilder.Cookie = Cookie.Replace("; path=/", "");
-                                                                        }),
+                                             Execute(client => client.GET("/result.php",
+                                                                           requestbuilder => {
+                                                                               requestbuilder.Host = "mietspiegel.jena.de";
+                                                                               requestbuilder.Cookie = Cookie.Replace("; path=/", "");
+                                                                           }),
 
-                                                  TimeSpan.FromSeconds(30),
-                                                  new CancellationTokenSource().Token);
+                                                     TimeSpan.FromSeconds(30),
+                                                     new CancellationTokenSource().Token);
 
-                var HTML = response2.HTTPBody.ToUTF8String();
+                if (GetMietinfos != null &&
+                    GetMietinfos.HTTPStatusCode == HTTPStatusCode.OK)
+                {
 
-                Int32 pos = 0;
+                    // Chunked transfer encoding!
+                    var HTML = GetMietinfos.HTTPBody.ToUTF8String();
 
-                var Wohnlage         = HTML.Scrape("<tr><td><b>Wohnlage</b></td><td>",
-                                                   "</td></tr>", ref pos);
+                    Int32 SearchPosition = 0;
 
-                var Wohnwertpunkte   = HTML.Scrape("<tr><td><b>Wohnwertpunkte</b></td><td>",
-                                                   "</td></tr>", ref pos);
+                    return new MietspiegelInfo() {
 
-                var Vergleichsmiete  = HTML.Scrape(@"<tr><td><b>ortsübliche Vergleichsmiete</b></td><td style=""white-space: nowrap;"">&nbsp;",
-                                                   "  €/m²</tr>", ref pos).
-                                            Replace("€/m² -", " ").
-                                            Split(SplitMe, StringSplitOptions.RemoveEmptyEntries);
+                        Wohnlage         = HTML.Scrape("<tr><td><b>Wohnlage</b></td><td>",
+                                                       "</td></tr>",  ref SearchPosition),
 
+                        Wohnwertpunkte   = HTML.Scrape("<tr><td><b>Wohnwertpunkte</b></td><td>",
+                                                       "</td></tr>",  ref SearchPosition),
 
-                return new Tuple<String, IEnumerable<String>>("", new String[] { "" });
+                        Vergleichsmiete  = HTML.Scrape(@"<tr><td><b>ortsübliche Vergleichsmiete</b></td><td style=""white-space: nowrap;"">&nbsp;",
+                                                       "  €/m²</tr>", ref SearchPosition).
+                                                Replace("€/m² -", " ").
+                                                Split(SplitMe, StringSplitOptions.RemoveEmptyEntries)
+
+                    };
+
+                }
 
             }
 
-            return new Tuple<String, IEnumerable<String>>("", new String[] { "" });
+            return new MietspiegelInfo();
 
         }
 
@@ -288,23 +311,87 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
             HTTPAddress  = DNSClient.Query<A>("mietspiegel.jena.de").Result.FirstOrDefault().IPv4Address; // 195.37.112.180
             HTTPPort     = IPPort.Parse(443);
 
-            var aa = GetResults("Biberweg", "18", SizeType.between50and80, YearType.between1991and2001).Result;
+            // Part 1:
+            //
+            // String line = null;
+            // 
+            // using (var logfile = File.AppendText("Mietspiegel_StrassenamenUndHausnummern.log"))
+            // {
+            //     foreach (var item in GetStreetsAndNumbers().Result)
+            //     {
+            // 
+            //         line = (item.Item1.EndsWith("tr.") ? item.Item1.Replace("tr.", "trasse") : item.Item1) + " => " + item.Item2.AggregateWith(",");
+            // 
+            //         Console.WriteLine(line);
+            //         logfile.WriteLine(line);
+            // 
+            //     }
+            // }
 
+            // Part 2:
 
+            var Splitter = new String[] { "=>", "," };
 
-            String line = null;
-
-            using (var logfile = File.AppendText("Mietspiegel_StrassenamenUndHausnummern.log"))
+            using (var JSONFile = File.AppendText("Mietspiegel_StrassenamenUndHausnummern.json"))
             {
-                foreach (var item in GetStreetsAndNumbers().Result)
+
+                //JSONFile.WriteLine("{");
+
+                foreach (var Street in File.ReadAllLines("Mietspiegel_StrassenamenUndHausnummern.log").Skip(2))
                 {
 
-                    line = (item.Item1.EndsWith("tr.") ? item.Item1.Replace("tr.", "trasse") : item.Item1) + " => " + item.Item2.AggregateWith(",");
+                    var Streetinfo = Street.Split(Splitter, StringSplitOptions.RemoveEmptyEntries).
+                                            Select(_ => _.Trim()).
+                                            ToArray();
 
-                    Console.WriteLine(line);
-                    logfile.WriteLine(line);
+                    Console.Write(Streetinfo[0] + " => ");
+
+                    var JSONStreet = new JObject();
+
+                    Parallel.ForEach(Streetinfo.Skip(1), Housenumber => {
+
+                        var JSONHousenumber = new JObject();
+
+                        lock (JSONStreet) {
+                            JSONStreet.Add(new JProperty(Housenumber.ToString(), JSONHousenumber));
+                        }
+
+                        foreach (SizeType SizeItem in Enum.GetValues(typeof(SizeType)))
+                        {
+
+                            var JSONSize = new JObject();
+                            JSONHousenumber.Add(new JProperty(SizeItem.ToString(), JSONSize));
+
+                            foreach (YearType YearItem in Enum.GetValues(typeof(YearType)))
+                            {
+
+                                var results = GetResults(Streetinfo[0], Housenumber, SizeItem, YearItem).Result;
+
+                                JSONSize.Add(new JProperty(YearItem.ToString(), new JObject(
+                                    new JProperty("VergleichsmieteVon",  results.Vergleichsmiete[0]),
+                                    new JProperty("VergleichsmieteBis",  results.Vergleichsmiete[1]),
+                                    new JProperty("Wohnlage",            results.Wohnlage),
+                                    new JProperty("Wohnwertpunkte",      results.Wohnwertpunkte)
+                                )));
+
+                            }
+
+                        }
+
+                        Console.Write(Housenumber + ",");
+
+                    });
+
+                    JSONFile.WriteLine(new JProperty(Streetinfo[0], JSONStreet).ToString() + ",");
+
+                    Console.WriteLine();
 
                 }
+
+                // An illegal "," in the last line!
+                //JSONFile.WriteLine("}");
+                JSONFile.Flush();
+
             }
 
         }
