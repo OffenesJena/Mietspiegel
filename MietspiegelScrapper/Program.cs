@@ -250,6 +250,9 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
 
             #endregion
 
+            try
+            { 
+
             var GetCookie = await new HTTPClient(HTTPAddress,
                                                  HTTPPort,
                                                  (sender, certificate, chain, sslPolicyErrors) => true,
@@ -272,57 +275,64 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
 
             String Cookie;
 
-            // Set-Cookie: PHPSESSID=b4f1c5ea36b12e92f81f152ecbab6c00; path=/
-            if (GetCookie != null &&
-                GetCookie.HTTPStatusCode == HTTPStatusCode.Found &&
-                GetCookie.TryGet("Set-Cookie", out Cookie))
-            {
-
-                var GetMietinfos = await new HTTPClient(HTTPAddress,
-                                                        HTTPPort,
-                                                        (sender, certificate, chain, sslPolicyErrors) => true,
-                                                        DNSClient).
-
-                                             Execute(client => client.GET("/result.php",
-                                                                           requestbuilder => {
-                                                                               requestbuilder.Host = "mietspiegel.jena.de";
-                                                                               requestbuilder.Cookie = Cookie.Replace("; path=/", "");
-                                                                           }),
-
-                                                     TimeSpan.FromSeconds(30),
-                                                     new CancellationTokenSource().Token);
-
-                if (GetMietinfos != null &&
-                    GetMietinfos.HTTPStatusCode == HTTPStatusCode.OK)
+                // Set-Cookie: PHPSESSID=b4f1c5ea36b12e92f81f152ecbab6c00; path=/
+                if (GetCookie != null &&
+                    GetCookie.HTTPStatusCode == HTTPStatusCode.Found &&
+                    GetCookie.TryGet("Set-Cookie", out Cookie))
                 {
 
-                    // Chunked transfer encoding!
-                    var HTML = GetMietinfos.HTTPBody.ToUTF8String();
+                    var GetMietinfos = await new HTTPClient(HTTPAddress,
+                                                            HTTPPort,
+                                                            (sender, certificate, chain, sslPolicyErrors) => true,
+                                                            DNSClient).
 
-                    if (!HTML.Contains("Leider sind für Ihre Angaben keine Daten verfügbar."))
+                                                 Execute(client => client.GET("/result.php",
+                                                                               requestbuilder => {
+                                                                                   requestbuilder.Host = "mietspiegel.jena.de";
+                                                                                   requestbuilder.Cookie = Cookie.Replace("; path=/", "");
+                                                                               }),
+
+                                                         TimeSpan.FromSeconds(30),
+                                                         new CancellationTokenSource().Token);
+
+                    if (GetMietinfos != null &&
+                        GetMietinfos.HTTPStatusCode == HTTPStatusCode.OK)
                     {
 
-                        Int32 SearchPosition = 0;
+                        // Chunked transfer encoding!
+                        var HTML = GetMietinfos.HTTPBody.ToUTF8String();
 
-                        return new MietspiegelInfo() {
+                        if (!HTML.Contains("Leider sind für Ihre Angaben keine Daten verfügbar."))
+                        {
 
-                            Wohnlage         = HTML.Scrape("<tr><td><b>Wohnlage</b></td><td>",
-                                                           "</td></tr>", ref SearchPosition),
+                            Int32 SearchPosition = 0;
 
-                            Wohnwertpunkte   = HTML.Scrape("<tr><td><b>Wohnwertpunkte</b></td><td>",
-                                                           "</td></tr>", ref SearchPosition),
+                            return new MietspiegelInfo() {
 
-                            Vergleichsmiete  = HTML.Scrape(@"<tr><td><b>ortsübliche Vergleichsmiete</b></td><td style=""white-space: nowrap;"">&nbsp;",
-                                                           "  €/m²</tr>", ref SearchPosition).
-                                                    Replace("€/m² -", " ").
-                                                    Split(SplitMe, StringSplitOptions.RemoveEmptyEntries)
+                                Wohnlage         = HTML.Scrape("<tr><td><b>Wohnlage</b></td><td>",
+                                                               "</td></tr>", ref SearchPosition),
 
-                        };
+                                Wohnwertpunkte   = HTML.Scrape("<tr><td><b>Wohnwertpunkte</b></td><td>",
+                                                               "</td></tr>", ref SearchPosition),
+
+                                Vergleichsmiete  = HTML.Scrape(@"<tr><td><b>ortsübliche Vergleichsmiete</b></td><td style=""white-space: nowrap;"">&nbsp;",
+                                                               "  €/m²</tr>", ref SearchPosition).
+                                                        Replace("€/m² -", " ").
+                                                        Split(SplitMe, StringSplitOptions.RemoveEmptyEntries)
+
+                            };
+
+                        }
 
                     }
 
                 }
 
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
             }
 
             // No data...
@@ -366,7 +376,7 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
 
                 //JSONFile.WriteLine("{");
 
-                foreach (var Street in File.ReadAllLines("Mietspiegel_StrassenamenUndHausnummern.log").Skip(292).Take(20))
+                foreach (var Street in File.ReadAllLines("Mietspiegel_StrassenamenUndHausnummern.log").Skip(374))
                 {
 
                     var Streetinfo = Street.Split(Splitter, StringSplitOptions.RemoveEmptyEntries).
@@ -377,7 +387,8 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
 
                     var JSONStreet = new JObject();
 
-                    Parallel.ForEach(Streetinfo.Skip(1), Housenumber => {
+                    foreach (var Housenumber in Streetinfo.Skip(1))
+                    {
 
                         var JSONHousenumber = new JObject();
 
@@ -409,7 +420,7 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
 
                         Console.Write(Housenumber + ",");
 
-                    });
+                    }
 
                     JSONFile.WriteLine(new JProperty(Streetinfo[0], JSONStreet).ToString() + ",");
                     JSONFile.Flush();
