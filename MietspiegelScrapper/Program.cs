@@ -337,7 +337,7 @@ namespace de.OffenesJena.Mietspiegel.Scrapper
 
                 //JSONFile.WriteLine("{");
 
-                foreach (var Street in File.ReadAllLines("Mietspiegel_StrassenamenUndHausnummern.log").Skip(2))
+                foreach (var Street in File.ReadAllLines("Mietspiegel_StrassenamenUndHausnummern.log").Skip(14))
                 {
 
                     var Streetinfo = Street.Split(Splitter, StringSplitOptions.RemoveEmptyEntries).
