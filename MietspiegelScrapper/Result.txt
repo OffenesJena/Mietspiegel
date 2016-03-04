@@ -1,0 +1,98 @@
+<div class="col-sm-12">
+	<h2>Angaben</h2>
+	<table>
+		<tr><td><b>Straße</b></td><td style="white-space: nowrap;">Biberweg 18</td></tr>
+		<tr><td><b>Größe</b></td><td>50m&#0178; - 80m&#0178;</td></tr>
+		<tr><td><b>Baujahresklasse</b></td><td>1991 - 2001</td></tr>
+		<tr><td><b>Wohnlage</b></td><td>mittel/gut</td></tr>
+		<tr><td><b>Wohnwertpunkte</b></td><td>3</td></tr>
+	</table>
+</div>
+
+<div class="col-sm-6">
+	
+	<h2>Ergebnis</h2>
+	
+	<div class="progress-top">
+  		<div class="progress-top-1" style="width: 100%;">
+  			<span class="result-item1">6.05</span>
+  			<span class="result-item2">8.38</span>
+  		</div>
+	</div>
+			
+	&nbsp;
+	<div class="progress">
+		<div class="progress-bar progress-bar-info" role="progressbar" style="width: 100%"></div>
+	</div>
+	
+	<table>
+	  <tr><td><b>ortsübliche Vergleichsmiete</b></td><td style="white-space: nowrap;">&nbsp;6.05 €/m² - 8.38  €/m²</tr>
+	</table>
+	
+	<br />
+
+	<div>
+		<p>Angaben: Nettokaltmieten in €/m² monatlich.<br />
+		Ergebnis: arithmetisches Mittel</p>
+	</div>
+	
+</div>
+ 
+ 
+<div class="col-sm-8">
+	
+	<h2>Weitere Merkmale</h2>
+	<br />
+	
+	<h4><span class="glyphicon glyphicon-th-large"></span>Sanierung des Gebäudes</h4>
+	<div>
+	  <table class="table">
+	  	<tr><td>Fassade und Dämmung</td><td> - </td></tr>
+		<tr><td>Treppenhaus/ Eingangsbereich</td><td> - </td></tr>
+		<tr><td>Außenanlagen</td><td> - </td></tr>
+		<tr><td>Keller</td><td> - </td></tr>
+      </table>
+	</div>
+	
+	<h4><span class="glyphicon glyphicon-tree-deciduous"></span>Energetische Kriterien / Schallschutz</h4>
+	<div>
+	  <table class="table">
+	  	<tr><td>EnVW</td><td> - </td></tr>
+		<tr><td>Warmwasser- und Heizungsrohre nicht isoliert</td><td>-</td></tr>
+		<tr><td>energiesparender Umbau der Heizungsanlage seit 1991</td><td>-</td></tr>
+		<tr><td>Flächenheizung</td><td>-</td></tr>
+		<tr><td>Fenster</td><td> - </td></tr>
+      </table>
+	</div>
+	
+	<h4><span class="glyphicon glyphicon-star"></span>Wohnkomfort</h4>
+	<div>
+	  <table class="table">
+	  	<tr><td>Balkon</td><td> - </td></tr>
+		<tr><td>keine Modernisierung des Bades seit 1991</td><td>-</td></tr>
+		<tr><td>Badewanne und zusätzliche Dusche</td><td>-</td></tr>
+		<tr><td>Zweites WC vom Bad getrennt</td><td>-</td></tr>
+		<tr><td>Wäschetrocknungsmöglichkeit nur im Bad</td><td>-</td></tr>
+		<tr><td>Zweiter Waschtisch im Bad</td><td>-</td></tr>
+		<tr><td>Barrierefreier Duscheinstieg <= 5cm</td><td>-</td></tr>
+		<tr><td>Küche ohne Fenster</td><td>-</td></tr>
+		<tr><td>Küche oder Bad nicht beheizbar</td><td>-</td></tr>
+		<tr><td>Badfenster</td><td> - </td></tr>
+		<tr><td>kein Waschmaschinenanschluss in der Wohnung</td><td>-</td></tr>
+		<tr><td>Elektroleitungen in der Wohnung sichtbar</td><td>-</td></tr>
+		<tr><td>Beschränkte Nutzbarkeit der Elektroleitungen</td><td>-</td></tr>
+		<tr><td>keine der Wohnung zugeordneten Nebenräume außerhalb der Wohnung</td><td>-</td></tr>
+		<tr><td>gefangene Räume (außer Küche/Wohnzimmerkombination)</td><td>-</td></tr>
+		<tr><td>Maisonette-Wohnung</td><td>-</td></tr>
+		<tr><td>Wintergarten/Balkonverglasung</td><td>-</td></tr>
+		<tr><td>Aufzug an Gebäuden</td><td>-</td></tr>
+		<tr><td>Barrierearmer Aufzug inkl. barrierearmer Zugang zum Haus</td><td>-</td></tr>
+		<tr><td>hochwertiger Fußbodenbelag (z.B. Parkett, Kork)</td><td>-</td></tr>
+		<tr><td>Einbruchhemmende Wohnungstür oder Fenster ab WK 2, auch Fensterläden/Außenjalousien</td><td>-</td></tr>
+		<tr><td>keine Gegensprechanlage</td><td>-</td></tr>
+		<tr><td>keine Fahrradabstellmöglichkeit (weder im Haus noch auf dem Grundstück)</td><td>-</td></tr>
+		<tr><td>Gartenanteil zur Wohnung</td><td>-</td></tr>
+	  </table>
+	</div>
+	
+</div>

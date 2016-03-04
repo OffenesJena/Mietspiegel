@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MietspiegelScrapper", "MietspiegelScrapper\MietspiegelScrapper.csproj", "{FAA46B93-9005-4C29-AEBE-AF275CC8B775}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{D7967929-C7AF-4246-AAE7-9F675DC111F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Illias", "libs\Illias\Illias\Illias.csproj", "{23D37453-2D4E-4BD8-B40F-3E731FEE7712}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hermod", "libs\Hermod\Hermod\Hermod.csproj", "{477EFD16-3627-4473-957D-44CA9A9DFB79}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "crypto", "libs\BouncyCastle\crypto\crypto.csproj", "{38872A5F-E87E-4FAD-B109-8EB7B2E6A4A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Styx", "libs\Styx\Styx\Styx.csproj", "{AF76ECC0-2CA5-4CFF-9E1E-FF5478C4B6E4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FAA46B93-9005-4C29-AEBE-AF275CC8B775}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAA46B93-9005-4C29-AEBE-AF275CC8B775}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAA46B93-9005-4C29-AEBE-AF275CC8B775}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAA46B93-9005-4C29-AEBE-AF275CC8B775}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23D37453-2D4E-4BD8-B40F-3E731FEE7712}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23D37453-2D4E-4BD8-B40F-3E731FEE7712}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23D37453-2D4E-4BD8-B40F-3E731FEE7712}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23D37453-2D4E-4BD8-B40F-3E731FEE7712}.Release|Any CPU.Build.0 = Release|Any CPU
+		{477EFD16-3627-4473-957D-44CA9A9DFB79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{477EFD16-3627-4473-957D-44CA9A9DFB79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{477EFD16-3627-4473-957D-44CA9A9DFB79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{477EFD16-3627-4473-957D-44CA9A9DFB79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38872A5F-E87E-4FAD-B109-8EB7B2E6A4A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38872A5F-E87E-4FAD-B109-8EB7B2E6A4A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38872A5F-E87E-4FAD-B109-8EB7B2E6A4A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38872A5F-E87E-4FAD-B109-8EB7B2E6A4A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF76ECC0-2CA5-4CFF-9E1E-FF5478C4B6E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF76ECC0-2CA5-4CFF-9E1E-FF5478C4B6E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF76ECC0-2CA5-4CFF-9E1E-FF5478C4B6E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF76ECC0-2CA5-4CFF-9E1E-FF5478C4B6E4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{23D37453-2D4E-4BD8-B40F-3E731FEE7712} = {D7967929-C7AF-4246-AAE7-9F675DC111F8}
+		{477EFD16-3627-4473-957D-44CA9A9DFB79} = {D7967929-C7AF-4246-AAE7-9F675DC111F8}
+		{38872A5F-E87E-4FAD-B109-8EB7B2E6A4A0} = {D7967929-C7AF-4246-AAE7-9F675DC111F8}
+		{AF76ECC0-2CA5-4CFF-9E1E-FF5478C4B6E4} = {D7967929-C7AF-4246-AAE7-9F675DC111F8}
+	EndGlobalSection
+EndGlobal
